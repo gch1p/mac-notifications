@@ -30,14 +30,14 @@ Persistent<Function> persistentCallback;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        
+
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
         if (paths.count > 0) {
             NSString *librarySoundsPath = [NSString stringWithFormat:@"%@/Sounds", paths[0]];
             NSString *librarySoundPath = [NSString stringWithFormat:@"%@/vk-message.mp3", librarySoundsPath];
-            
+
             NSURL *soundLibraryURL = [NSURL fileURLWithPath:librarySoundPath];
-            
+
             if (![[NSFileManager defaultManager] fileExistsAtPath:[soundLibraryURL absoluteString]]) {
                 NSURL *soundBundleURL = [[NSBundle mainBundle] URLForResource:@"vk-message" withExtension:@"mp3"];
                 if (soundBundleURL != nil) {
@@ -45,14 +45,14 @@ Persistent<Function> persistentCallback;
                 }
             }
         }
-        
+
     }
     return self;
 }
 
 - (void)showNotification:(Handle<String>)object {
     NSString *jsonString = [NSString stringWithV8String:object->ToString()];
-    
+
     NSError *error = nil;
     NSMutableDictionary *json = [[NSJSONSerialization
                  JSONObjectWithData: [jsonString dataUsingEncoding:NSUTF8StringEncoding]
@@ -75,7 +75,7 @@ Persistent<Function> persistentCallback;
 
     BOOL hasReplyButton = json[@"hasReplyButton"] ? [json[@"hasReplyButton"] boolValue] : false;
     NSString *responsePlaceholder = json[@"responsePlaceholder"];
-    
+
     NSImage *contentImage = nil;
     NSString *contentImageString = json[@"contentImage"];
     if (contentImageString != nil) {
@@ -85,7 +85,7 @@ Persistent<Function> persistentCallback;
         NSData *imageData = [NSData dataWithContentsOfURL:url];
         contentImage = [[NSImage alloc] initWithData:imageData];
     }
-    
+
     NSUserNotification *notification = [NSUserNotification new];
     notification.title = title;
     notification.subtitle = subtitle;
@@ -102,9 +102,13 @@ Persistent<Function> persistentCallback;
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
 }
 
+- (void)hideNotification {
+    [[NSUserNotificationCenter defaultUserNotificationCenter] removeAllDeliveredNotifications];
+}
+
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
         didDeliverNotification:(NSUserNotification *)notification {
-    
+
     id<NSUserNotificationCenterDelegate> delegate = (id<NSUserNotificationCenterDelegate>)[NSApplication sharedApplication].delegate;
     if ([delegate respondsToSelector:@selector(userNotificationCenter:didDeliverNotification:)]) {
         [delegate userNotificationCenter:center didDeliverNotification:notification];
@@ -113,13 +117,13 @@ Persistent<Function> persistentCallback;
 
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
        didActivateNotification:(NSUserNotification *)notification {
-    
+
     id<NSUserNotificationCenterDelegate> delegate = (id<NSUserNotificationCenterDelegate>)[NSApplication sharedApplication].delegate;
     if ([delegate respondsToSelector:@selector(userNotificationCenter:didActivateNotification:)]) {
         [delegate userNotificationCenter:center didActivateNotification:notification];
     }
-    
-    if (notification.activationType == NSUserNotificationActivationTypeReplied){        
+
+    if (notification.activationType == NSUserNotificationActivationTypeReplied){
         [self sendReplyCallback:notification replyText: notification.response.string];
     } else {
         [self sendActiveCallback:notification];
@@ -128,9 +132,9 @@ Persistent<Function> persistentCallback;
 
 - (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center
      shouldPresentNotification:(NSUserNotification *)notification {
-    
+
     id<NSUserNotificationCenterDelegate> delegate = (id<NSUserNotificationCenterDelegate>)[NSApplication sharedApplication].delegate;
-    
+
     BOOL result = true;
     if ([delegate respondsToSelector:@selector(userNotificationCenter:shouldPresentNotification:)]) {
         result = [delegate userNotificationCenter:center shouldPresentNotification:notification];
@@ -140,12 +144,12 @@ Persistent<Function> persistentCallback;
 
 - (void)sendReplyCallback:(NSUserNotification *)notification replyText:(NSString *)replyText {
     Isolate *isolate = Isolate::GetCurrent();
-    
+
     NSString *json = notification.userInfo != nil ? notification.userInfo[@"jsonString"] : nil;
     if (json == nil) {
         json = @"{}";
     }
-    
+
     const unsigned argc = 3;
     Local<Value> argv[argc] = { [json v8Value], [@"reply" v8Value], [replyText v8Value] };
     Local<Function>::New(isolate, persistentCallback)->Call(isolate->GetCurrentContext()->Global(), argc, argv);
@@ -153,12 +157,12 @@ Persistent<Function> persistentCallback;
 
 - (void)sendActiveCallback:(NSUserNotification *)notification {
     Isolate *isolate = Isolate::GetCurrent();
-    
+
     NSString *json = notification.userInfo != nil ? notification.userInfo[@"jsonString"] : nil;
     if (json == nil) {
         json = @"{}";
     }
-    
+
     const unsigned argc = 2;
     Local<Value> argv[argc] = { [json v8Value], [@"active" v8Value] };
     Local<Function>::New(isolate, persistentCallback)->Call(isolate->GetCurrentContext()->Global(), argc, argv);
@@ -169,7 +173,7 @@ Persistent<Function> persistentCallback;
 
 void initializeCallback(Handle<Function> сallback) {
     [NSUserNotificationCenter defaultUserNotificationCenter].delegate = [NotificationsHandler sharedInstance];
-    
+
     persistentCallback.Reset(Isolate::GetCurrent(), сallback);
 }
 

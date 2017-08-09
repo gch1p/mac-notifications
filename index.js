@@ -20,6 +20,10 @@ module.exports = {
   show: function(options) {
     let json = JSON.stringify(options);
     nativeModule.showNotification(json);
+  },
+
+  hide: function() {
+    nativeModule.hideNotification();
   }
 
 }

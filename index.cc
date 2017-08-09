@@ -23,9 +23,17 @@ void showNotificationFunc(const v8::FunctionCallbackInfo<Value>& args) {
     }
 }
 
+void hideNotificationFunc(const v8::FunctionCallbackInfo<Value>& args) {
+    Isolate* isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
+
+    hideNotification();
+}
+
 void Init(Handle<Object> exports) {
     NODE_SET_METHOD(exports, "initializeCallback", initializeCallbackFunc);
     NODE_SET_METHOD(exports, "showNotification", showNotificationFunc);
+    NODE_SET_METHOD(exports, "hideNotification", hideNotificationFunc);
 }
 
 NODE_MODULE(hello, Init)
