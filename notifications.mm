@@ -12,6 +12,7 @@ Persistent<Function> persistentCallback;
 
 @interface NotificationsHandler: NSObject<NSUserNotificationCenterDelegate>
 
+@property (nonatomic, strong) NSUserNotification *notification;
 + (instancetype)sharedInstance;
 
 @end
@@ -96,14 +97,20 @@ Persistent<Function> persistentCallback;
         notification.responsePlaceholder = responsePlaceholder;
     }
     notification.contentImage = contentImage;
-
     notification.userInfo = @{ @"jsonString": [json bv_jsonStringWithPrettyPrint:false] };
 
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+
+    self.notification = notification;
 }
 
 - (void)hideNotification {
     [[NSUserNotificationCenter defaultUserNotificationCenter] removeAllDeliveredNotifications];
+
+    if (self.notification) {
+        [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification:self.notification];
+        self.notification = nil;
+    }
 }
 
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
