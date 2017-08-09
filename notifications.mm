@@ -180,3 +180,7 @@ void initializeCallback(Handle<Function> сallback) {
 void showNotification(Handle<String> object) {
     [[NotificationsHandler sharedInstance] showNotification:object];
 }
+
+void hideNotification() {
+    [[NotificationsHandler sharedInstance] hideNotification];
+}
