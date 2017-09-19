@@ -30,7 +30,7 @@ Persistent<Function> persistentCallback;
 
 - (instancetype)init {
     self = [super init];
-    if (self) {
+    /*if (self) {
 
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
         if (paths.count > 0) {
@@ -47,7 +47,7 @@ Persistent<Function> persistentCallback;
             }
         }
 
-    }
+    }*/
     return self;
 }
 
