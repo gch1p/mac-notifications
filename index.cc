@@ -9,7 +9,7 @@ void initializeCallbackFunc(const FunctionCallbackInfo<Value>& args) {
     Isolate* isolate = Isolate::GetCurrent();
     HandleScope scope(isolate);
 
-    Handle<Function> callback = Handle<Function>::Cast(args[0]);
+    Local<Function> callback = Local<Function>::Cast(args[0]);
     initializeCallback(callback);
 }
 
@@ -18,7 +18,7 @@ void showNotificationFunc(const v8::FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     if (args[0]->IsString()) {
-        Handle<String> obj = args[0]->ToString();
+        Local<String> obj = args[0]->ToString();
         showNotification(obj);
     }
 }
@@ -30,7 +30,7 @@ void hideNotificationFunc(const v8::FunctionCallbackInfo<Value>& args) {
     hideNotification();
 }
 
-void Init(Handle<Object> exports) {
+void Init(Local<Object> exports) {
     NODE_SET_METHOD(exports, "initializeCallback", initializeCallbackFunc);
     NODE_SET_METHOD(exports, "showNotification", showNotificationFunc);
     NODE_SET_METHOD(exports, "hideNotification", hideNotificationFunc);

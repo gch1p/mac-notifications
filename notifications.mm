@@ -51,7 +51,7 @@ Persistent<Function> persistentCallback;
     return self;
 }
 
-- (void)showNotification:(Handle<String>)object {
+- (void)showNotification:(Local<String>)object {
     NSString *jsonString = [NSString stringWithV8String:object->ToString()];
 
     NSError *error = nil;
@@ -178,13 +178,13 @@ Persistent<Function> persistentCallback;
 @end
 
 
-void initializeCallback(Handle<Function> сallback) {
+void initializeCallback(Local<Function> сallback) {
     [NSUserNotificationCenter defaultUserNotificationCenter].delegate = [NotificationsHandler sharedInstance];
 
     persistentCallback.Reset(Isolate::GetCurrent(), сallback);
 }
 
-void showNotification(Handle<String> object) {
+void showNotification(Local<String> object) {
     [[NotificationsHandler sharedInstance] showNotification:object];
 }
 

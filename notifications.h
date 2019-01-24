@@ -4,5 +4,5 @@
 using namespace v8;
 
 void initializeCallback(Local<Function> replyCallback);
-void showNotification(Handle<String> object);
+void showNotification(Local<String> object);
 void hideNotification();
